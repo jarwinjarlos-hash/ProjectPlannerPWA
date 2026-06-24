@@ -1,94 +1,91 @@
-let devices = [];
-let chart;
+let tasks = [];
 
-function addActivity() {
-  let name = document.getElementById("activityName").value;
-  alert("Activity Created: " + name);
-}
+// Add task
+function addTask() {
 
-function addDevice() {
-  let tag = document.getElementById("deviceTag").value;
-  if (!tag) return;
+  let name = document.getElementById("taskName").value;
+  let start = new Date(document.getElementById("startDate").value);
+  let end = new Date(document.getElementById("endDate").value);
 
-  devices.push({ tag: tag, done: false });
-  document.getElementById("deviceTag").value = "";
-  render();
-}
+  if (!name || !start || !end) return;
 
-function toggle(index) {
-  devices[index].done = !devices[index].done;
-  render();
-}
-
-function render() {
-  let list = document.getElementById("deviceList");
-  list.innerHTML = "";
-
-  devices.forEach((d, i) => {
-    let li = document.createElement("li");
-
-    li.innerHTML = `
-      <span class="${d.done ? "done" : ""}">${d.tag}</span>
-      <button onclick="toggle(${i})">${d.done ? "Undo" : "Done"}</button>
-    `;
-
-    list.appendChild(li);
+  tasks.push({
+    name: name,
+    start: start,
+    end: end,
+    done: false
   });
 
-  updateStatus();
-  loadGantt();
+  render();
 }
 
-function updateStatus() {
-  let done = devices.filter(d => d.done).length;
-  let total = devices.length;
+// Render everything
+function render() {
 
-  document.getElementById("statusSummary").innerText =
-    `Finished: ${done} / ${total}`;
-
-  let percent = total ? Math.round((done / total) * 100) : 0;
-  document.getElementById("percent").innerText = percent + "%";
-
-  updateChart(percent);
+  renderTable();
+  renderTimeline();
 }
 
-function updateChart(actualPercent) {
-  let ctx = document.getElementById("progressChart").getContext("2d");
+// LEFT TABLE
+function renderTable() {
+  let tbody = document.querySelector("#taskTable tbody");
+  tbody.innerHTML = "";
 
-  if (chart) chart.destroy();
+  tasks.forEach((t, i) => {
 
-  chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['Start', 'Now'],
-      datasets: [
-        {
-          label: 'Planned',
-          data: [0, 100],
-          borderColor: 'blue'
-        },
-        {
-          label: 'Actual',
-          data: [0, actualPercent],
-          borderColor: 'red'
-        }
-      ]
+    let row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>${t.name}</td>
+      <td>${formatDate(t.start)}</td>
+      <td>${formatDate(t.end)}</td>
+      <td>
+        <button onclick="toggle(${i})">
+          ${t.done ? "Done" : "Pending"}
+        </button>
+      </td>
+    `;
+
+    tbody.appendChild(row);
+  });
+}
+
+// RIGHT TIMELINE
+function renderTimeline() {
+
+  let timeline = document.getElementById("timeline");
+  timeline.innerHTML = "";
+
+  let baseDate = new Date("2026-06-01");
+
+  tasks.forEach(t => {
+
+    // create row
+    for (let i = 0; i < 30; i++) {
+
+      let cell = document.createElement("div");
+      cell.className = "cell";
+
+      let current = new Date(baseDate);
+      current.setDate(current.getDate() + i);
+
+      // check if inside task duration
+      if (current >= t.start && current <= t.end) {
+        cell.classList.add("bar");
+      }
+
+      timeline.appendChild(cell);
     }
   });
 }
 
-function loadGantt() {
-  let tasks = devices.map((d, i) => ({
-    id: i.toString(),
-    name: d.tag,
-    start: "2026-06-01",
-    end: "2026-06-10",
-    progress: d.done ? 100 : 0
-  }));
+// Toggle status
+function toggle(i) {
+  tasks[i].done = !tasks[i].done;
+  render();
+}
 
-  document.getElementById("gantt").innerHTML = "";
-
-  if (tasks.length > 0) {
-    new Gantt("#gantt", tasks);
-  }
+// Format
+function formatDate(d) {
+  return d.toISOString().split("T")[0];
 }
