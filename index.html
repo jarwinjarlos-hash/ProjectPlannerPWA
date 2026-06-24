@@ -1,58 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Planner</title>
+<meta charset="UTF-8">
+<title>Advanced Project Planner</title>
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css">
 
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- Gantt -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/frappe-gantt/dist/frappe-gantt.css">
-  <script src="https://cdn.jsdelivr.net/npm/frappe-gantt/dist/frappe-gantt.min.js"></script>
 </head>
 
 <body>
 
-<h1>Project Planner Dashboard</h1>
+<h1>Project Planner (Engineering Style)</h1>
 
-<input id="activityName" placeholder="Main Activity">
-<button onclick="addActivity()">Create Activity</button>
+<div class="controls">
+  <input id="taskName" placeholder="Task Name">
+  <input type="date" id="startDate">
+  <input type="date" id="endDate">
+  <button onclick="addTask()">Add Task</button>
+</div>
 
-<br><br>
+<div class="container">
 
-<input id="deviceTag" placeholder="Device Tag (e.g. P-101)">
-<button onclick="addDevice()">Add Device</button>
+  <!-- LEFT TABLE -->
+  <table id="taskTable">
+    <thead>
+      <tr>
+        <th>Task</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-<h2>Devices</h2>
-<ul id="deviceList"></ul>
+  <!-- RIGHT TIMELINE -->
+  <div id="timeline"></div>
 
-<h2>Status</h2>
-<p id="statusSummary">Finished: 0 / 0</p>
-<p>Completion: <span id="percent">0%</span></p>
+</div>
 
-<h2>Progress Chart</h2>
-<canvas id="progressChart"></canvas>
-
-<h2>Gantt Chart</h2>
-<div id="gantt"></div>
-
-<!-- App Script -->
 <script src="app.js"></script>
-
-<!-- Service Worker -->
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js');
-}
-</script>
-
 </body>
 </html>
