@@ -1,34 +1,25 @@
 let devices = [];
-let activityName = "";
 let chart;
 
-// Create activity
 function addActivity() {
-  activityName = document.getElementById("activityName").value;
-  alert("Activity Created: " + activityName);
+  let name = document.getElementById("activityName").value;
+  alert("Activity Created: " + name);
 }
 
-// Add device
 function addDevice() {
   let tag = document.getElementById("deviceTag").value;
   if (!tag) return;
 
-  devices.push({
-    tag: tag,
-    done: false
-  });
-
+  devices.push({ tag: tag, done: false });
   document.getElementById("deviceTag").value = "";
   render();
 }
 
-// Toggle status
 function toggle(index) {
   devices[index].done = !devices[index].done;
   render();
 }
 
-// Render UI
 function render() {
   let list = document.getElementById("deviceList");
   list.innerHTML = "";
@@ -37,12 +28,8 @@ function render() {
     let li = document.createElement("li");
 
     li.innerHTML = `
-      <span class="${d.done ? "done" : ""}">
-        ${d.tag}
-      </span>
-      <button onclick="toggle(${i})">
-        ${d.done ? "Undo" : "Done"}
-      </button>
+      <span class="${d.done ? "done" : ""}">${d.tag}</span>
+      <button onclick="toggle(${i})">${d.done ? "Undo" : "Done"}</button>
     `;
 
     list.appendChild(li);
@@ -52,7 +39,6 @@ function render() {
   loadGantt();
 }
 
-// Update summary
 function updateStatus() {
   let done = devices.filter(d => d.done).length;
   let total = devices.length;
@@ -66,7 +52,6 @@ function updateStatus() {
   updateChart(percent);
 }
 
-// Chart.js
 function updateChart(actualPercent) {
   let ctx = document.getElementById("progressChart").getContext("2d");
 
@@ -75,22 +60,35 @@ function updateChart(actualPercent) {
   chart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: ['Start', 'Current'],
+      labels: ['Start', 'Now'],
       datasets: [
         {
           label: 'Planned',
           data: [0, 100],
-          borderColor: 'blue',
-          fill: false
+          borderColor: 'blue'
         },
         {
           label: 'Actual',
           data: [0, actualPercent],
-          borderColor: 'red',
-          fill: false
+          borderColor: 'red'
         }
       ]
     }
   });
 }
 
+function loadGantt() {
+  let tasks = devices.map((d, i) => ({
+    id: i.toString(),
+    name: d.tag,
+    start: "2026-06-01",
+    end: "2026-06-10",
+    progress: d.done ? 100 : 0
+  }));
+
+  document.getElementById("gantt").innerHTML = "";
+
+  if (tasks.length > 0) {
+    new Gantt("#gantt", tasks);
+  }
+}
